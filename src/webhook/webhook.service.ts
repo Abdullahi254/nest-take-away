@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable} from '@nestjs/common';
 import { firestore } from '../config/firebase.config';
 import { WebhookMessageDto } from './dto/webhook-message.dto';
 
@@ -23,10 +23,4 @@ export class WebhookService {
     return { status: 'Message received' };
   }
 
-  watchMessages(callback: (messages: any[]) => void) {
-    this.messagesCollection.orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-      const messages = snapshot.docs.map(doc => doc.data());
-      callback(messages);
-    });
-  }
 }
