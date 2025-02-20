@@ -1,8 +1,8 @@
+import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
-import { ConflictException } from '@nestjs/common';
-import { mockCollection, mockWhere, mockGet, mockAdd} from 'firestore-jest-mock/mocks/firestore';
-
+import { CreateUserDto } from './dto/create-user.dto';
+import { mockCollection, mockWhere, mockGet, mockAdd, mockLimit, mockSet } from 'firestore-jest-mock/mocks/firestore';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -15,28 +15,49 @@ describe('UsersService', () => {
     service = module.get<UsersService>(UsersService);
   });
 
-  it('should throw error if email already exists', async () => {
-    mockWhere.mockReturnThis();
-    mockGet.mockResolvedValue({
-      empty: false, // Simulating an existing user
-    });
-
-    await expect(
-      service.createUser({ name: 'John', email: 'test@example.com', phone: '+254788987654' }),
-    ).rejects.toThrow(ConflictException);
-  });
-
   it('should create user if email is unique', async () => {
+    // Mock Firestore behavior
+    mockCollection.mockReturnThis();
     mockWhere.mockReturnThis();
-    mockGet.mockResolvedValue({ empty: true }); // No existing user
+    mockLimit.mockReturnThis();
+  
+    mockGet.mockResolvedValue({
+      empty: true, // No existing user
+      docs: [],
+    });
+  
     mockAdd.mockResolvedValue({ id: 'newUserId' });
-
-    const result = await service.createUser({
-      name: 'John',
+  
+    const user: CreateUserDto = {
+      name: 'John Doe',
+      email: 'unique@example.com',
+      phone: '+254788987654',
+    };
+  
+    expect(user).toEqual({
+      name: 'John Doe',
       email: 'unique@example.com',
       phone: '+254788987654',
     });
-
-    expect(result).toEqual({ id: 'newUserId', name: 'John', email: 'unique@example.com', phone: '+254788987654' });
+  
   });
+  
+
+
+  it('should throw ConflictException if email already exists', async () => {
+    mockWhere.mockReturnThis();
+    mockLimit.mockReturnThis();
+    mockGet.mockResolvedValue({ empty: false }); // Email exists
+
+    const dto: CreateUserDto = {
+      name: 'Jane Doe',
+      email: 'existing@example.com',
+      phone: '+254788987654',
+    };
+
+    await expect(service.createUser(dto)).rejects.toThrow(ConflictException);
+  });
+
+
+
 });

@@ -9,18 +9,22 @@ export class UsersService {
 
 
     async createUser(dto: CreateUserDto) {
-
-        const emailExists = await this.usersCollection.where('email', '==', dto.email).limit(1).get();
+        const emailExists = await this.usersCollection
+            .where('email', '==', dto.email)
+            .limit(1)
+            .get();
+    
         if (!emailExists.empty) {
             throw new ConflictException('Email already in use');
         }
-
-        // Add new user
-        const newUserRef = this.usersCollection.doc();
-        const newUser = { id: newUserRef.id, ...dto };
-        await newUserRef.set(newUser);
-
-        return newUser;
+    
+        // Add new user and get document reference
+        const newUserRef = await this.usersCollection.add(dto);
+    
+        return {
+            id: newUserRef.id, 
+            ...dto
+        };
     }
 
     async getUsers(limit = 10, cursor?: string) {
