@@ -174,19 +174,19 @@ Navigate to **`http://localhost:3000/graphql`**.
 
 ### 📌 Query Users
 ```graphql
-query {
-  users(limit: 2, cursor: "lastUserId") {
-    id
+query Getusers{
+  getUsers(limit: 2, cursor: "lastUserId") {
     name
     email
+    phone
   }
 }
 ```
 
 ### 📌 Get User by ID
 ```graphql
-query {
-  user(id: "user1") {
+query GetUserById{
+  getUserById(id: "user1") {
     name
     email
   }
