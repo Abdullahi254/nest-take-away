@@ -246,7 +246,7 @@ npm run test:e2e
 
 ## 📜 License
 
-MIT License © 2025 Your Name  
+MIT License © 2025 Abdullahi
 
 ---
 
